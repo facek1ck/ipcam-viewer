@@ -1,0 +1,37 @@
+{
+  "name": "ipcam",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "android": "react-native run-android",
+    "ios": "react-native run-ios",
+    "start": "react-native start",
+    "test": "jest",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "buffer": "^5.5.0",
+    "react": "16.11.0",
+    "react-native": "0.62.2",
+    "react-native-dialog": "^5.6.0",
+    "react-native-elements": "^1.2.7",
+    "react-native-live-stream": "^1.0.1",
+    "react-native-sqlite-2": "^3.0.1",
+    "react-native-uuid": "^1.4.9",
+    "react-native-vector-icons": "^6.6.0",
+    "react-native-vlc-media-player": "^1.0.17"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.9.0",
+    "@babel/runtime": "^7.9.2",
+    "@react-native-community/eslint-config": "^1.0.0",
+    "babel-jest": "^25.3.0",
+    "eslint": "^6.8.0",
+    "jest": "^25.3.0",
+    "metro-react-native-babel-preset": "^0.59.0",
+    "react-test-renderer": "16.11.0"
+  },
+  "jest": {
+    "preset": "react-native"
+  }
+}
