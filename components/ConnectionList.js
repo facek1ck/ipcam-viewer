@@ -12,22 +12,28 @@ import {List, ListItem, Overlay} from 'react-native-elements';
 import Dialog from 'react-native-dialog';
 import {VLCPlayer, VlCPlayerView} from 'react-native-vlc-media-player';
 
-const emptyCamera = {uuid: -1, name: -1, host: -1, username: '', password: ''};
+const emptyCamera = {uuid: '', name: '', host: '', username: '', password: ''};
+const editCamera = emptyCamera;
 class ConnectionList extends Component {
   constructor(props) {
     super(props);
     this.state = {
       longPressDialogVisible: false,
+      editDialogVisible: false,
       tempItem: emptyCamera,
       videoModalVisible: false,
     };
   }
 
-  showLongPressDialog = item => () =>
+  showLongPressDialog = (item) => () =>
     this.setState({longPressDialogVisible: true, tempItem: item});
 
   handleCancelLongPress = () => {
     this.setState({longPressDialogVisible: false, tempItem: emptyCamera});
+  };
+
+  handleCancelEdit = () => {
+    this.setState({editDialogVisible: false, tempItem: emptyCamera});
   };
 
   handleDelete = () => {
@@ -35,12 +41,46 @@ class ConnectionList extends Component {
     this.setState({longPressDialogVisible: false, tempItem: emptyCamera});
   };
 
-  handleEdit = () => {
-    //TODO: implement edit for cameras
+  showEditDialog = () => {
+    this.setState(
+      {
+        longPressDialogVisible: false,
+      },
+      () =>
+        setTimeout(
+          () =>
+            this.setState({
+              editDialogVisible: true,
+            }),
+          500,
+        ),
+    );
   };
 
-  showVideoModal = item => () => {
+  handleEdit = async () => {
+    await this.props.handleRemove(this.state.tempItem);
+    await this.props.handleAdd(this.state.tempItem);
+    this.setState({editDialogVisible: false, tempItem: emptyCamera});
+  };
+
+  showVideoModal = (item) => () => {
     this.setState({videoModalVisible: true, tempItem: item});
+  };
+
+  onChangeName = (name) => {
+    this.setState({tempItem: {...this.state.tempItem, name}});
+  };
+
+  onChangeHost = (host) => {
+    this.setState({tempItem: {...this.state.tempItem, host}});
+  };
+
+  onChangeUsername = (username) => {
+    this.setState({tempItem: {...this.state.tempItem, username}});
+  };
+
+  onChangePassword = (password) => {
+    this.setState({tempItem: {...this.state.tempItem, password}});
   };
 
   keyExtractor = (item, index) => index.toString();
@@ -55,6 +95,10 @@ class ConnectionList extends Component {
     />
   );
   render() {
+    const iosProps = {};
+    if (Platform.OS === 'ios') {
+      iosProps.color = 'black';
+    }
     return (
       <React.Fragment>
         <FlatList
@@ -65,16 +109,50 @@ class ConnectionList extends Component {
           <Dialog.Title>{this.state.tempItem.name}</Dialog.Title>
           <Dialog.Description>What do you want to do?</Dialog.Description>
           <Dialog.Button label="Cancel" onPress={this.handleCancelLongPress} />
-          <Dialog.Button label="Edit" onPress={this.handleEdit} />
+          <Dialog.Button label="Edit" onPress={this.showEditDialog} />
           <Dialog.Button label="Delete" onPress={this.handleDelete} />
         </Dialog.Container>
+
+        <Dialog.Container visible={this.state.editDialogVisible}>
+          <Dialog.Title>Edit</Dialog.Title>
+          <Dialog.Description>
+            Please enter the name and host of your camera.
+          </Dialog.Description>
+          <Dialog.Input
+            onChangeText={this.onChangeName}
+            defaultValue={this.state.tempItem.name}
+            placeholder="Name"
+            placeholderTextColor="rgb(204,204,204)"
+            {...iosProps}></Dialog.Input>
+          <Dialog.Input
+            onChangeText={this.onChangeHost}
+            defaultValue={this.state.tempItem.host}
+            placeholder="Host"
+            placeholderTextColor="rgb(204,204,204)"
+            {...iosProps}></Dialog.Input>
+          <Dialog.Input
+            onChangeText={this.onChangeUsername}
+            defaultValue={this.state.tempItem.username}
+            placeholder="Username"
+            placeholderTextColor="rgb(204,204,204)"
+            {...iosProps}></Dialog.Input>
+          <Dialog.Input
+            onChangeText={this.onChangePassword}
+            placeholder="Password"
+            placeholderTextColor="rgb(204,204,204)"
+            secureTextEntry={true}
+            {...iosProps}></Dialog.Input>
+          <Dialog.Button label="Cancel" onPress={this.handleCancelEdit} />
+          <Dialog.Button label="Save" onPress={this.handleEdit} />
+        </Dialog.Container>
+
         <Overlay
           isVisible={this.state.videoModalVisible}
           width="100%"
           height="auto"
           onBackdropPress={() => this.setState({videoModalVisible: false})}>
           <VLCPlayer
-            ref={ref => (this.vlcPlayer = ref)}
+            ref={(ref) => (this.vlcPlayer = ref)}
             style={{width: '100%', height: 200}}
             videoAspectRatio="16:9"
             source={{
@@ -86,7 +164,6 @@ class ConnectionList extends Component {
                 '@' +
                 this.state.tempItem.host +
                 '/11',
-              //   uri: 'rtsp://admin:Sisma26!@eventfactory.ddns.net:1027/11',
             }}
           />
         </Overlay>

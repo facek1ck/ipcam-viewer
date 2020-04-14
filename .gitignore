@@ -20,6 +20,20 @@ gen/
 out/
 release/
 
+bin
+gen
+target
+.settings
+.classpath
+.project
+*.keystore
+*.swp
+*.orig
+*.log
+*.properties
+seed.txt
+map.txt
+
 # Gradle files
 .gradle/
 build/
@@ -41,7 +55,7 @@ captures/
 
 # IntelliJ
 *.iml
-.idea/workspace.xml
+.idea/
 .idea/tasks.xml
 .idea/gradle.xml
 .idea/assetWizardSettings.xml
@@ -55,8 +69,8 @@ captures/
 
 # Keystore files
 # Uncomment the following lines if you do not want to check your keystore files in.
-#*.jks
-#*.keystore
+*.jks
+*.keystore
 
 # External native build folder generated in Android Studio 2.2 and later
 .externalNativeBuild

@@ -37,14 +37,11 @@ export default class App extends Component {
     try {
       const keys = await AsyncStorage.getAllKeys();
       const items = await AsyncStorage.multiGet(keys);
-      // console.log(items);
       if (items.length > 0) {
-        // console.log(JSON.parse(items));
-        const cameras = items.map(item => ({
+        const cameras = items.map((item) => ({
           uuid: item[0],
           ...JSON.parse(item[1]),
         }));
-        //console.log('cameras', cameras);
         this.setState({
           cameras,
         });
@@ -54,13 +51,12 @@ export default class App extends Component {
     }
   };
 
-  // create a function that saves your data asyncronously
-  _storeData = async camera => {
+  _storeData = async (camera) => {
     try {
       const {uuid, ...rest} = camera;
       await AsyncStorage.setItem(uuid, JSON.stringify(rest));
     } catch (error) {
-      console.log(error);
+      // Error storing data
     }
   };
 
@@ -72,7 +68,7 @@ export default class App extends Component {
     this.setState({dialogVisible: false});
   };
 
-  handleAdd = () => {
+  handleAdd = async () => {
     const camera = {
       uuid: uuid.v4(),
       name: this.state.curName,
@@ -81,48 +77,63 @@ export default class App extends Component {
       password: this.state.curPassword,
     };
     this._storeData(camera);
-    this.setState({
+    await this.setState({
       dialogVisible: false,
       cameras: [...this.state.cameras, camera],
     });
   };
 
-  handleRemove = camera => {
+  handleAddSpecific = (camera) => {
+    this._storeData(camera);
     this.setState({
-      cameras: this.state.cameras.filter(c => c.uuid !== camera.uuid),
+      cameras: [...this.state.cameras, camera],
+    });
+  };
+
+  handleRemove = async (camera) => {
+    await this.setState({
+      cameras: this.state.cameras.filter((c) => c.uuid !== camera.uuid),
     });
     AsyncStorage.removeItem(camera.uuid);
   };
 
-  onChangeName = name => {
+  onChangeName = (name) => {
     this.setState({curName: name});
   };
 
-  onChangeHost = host => {
+  onChangeHost = (host) => {
     this.setState({curHost: host});
   };
 
-  onChangeUsername = username => {
+  onChangeUsername = (username) => {
     this.setState({curUsername: username});
   };
 
-  onChangePassword = password => {
+  onChangePassword = (password) => {
     this.setState({curPassword: password});
   };
 
   render() {
+    const iosProps = {};
+    if (Platform.OS === 'ios') {
+      iosProps.color = 'black';
+    }
     return (
       <>
-        <StatusBar barStyle="dark-content" />
-        <SafeAreaView>
+        <StatusBar barStyle="light-content" />
+        <SafeAreaView style={{backgroundColor: '#579ABE'}}>
           <Header
-            centerComponent={{text: 'MY TITLE', style: {color: '#fff'}}}
+            centerComponent={{
+              text: 'IP Camera Viewer',
+              style: {color: '#fff'},
+            }}
             rightComponent={{
               icon: 'add',
               underlayColor: 'inherit',
               color: '#fff',
               onPress: this.showDialog,
             }}
+            backgroundColor="#579ABE"
           />
           <Dialog.Container visible={this.state.dialogVisible}>
             <Dialog.Title>Add a new IP Camera</Dialog.Title>
@@ -131,23 +142,32 @@ export default class App extends Component {
             </Dialog.Description>
             <Dialog.Input
               onChangeText={this.onChangeName}
-              placeholder="Name"></Dialog.Input>
+              placeholder="Name"
+              placeholderTextColor="rgb(204,204,204)"
+              {...iosProps}></Dialog.Input>
             <Dialog.Input
               onChangeText={this.onChangeHost}
-              placeholder="Host"></Dialog.Input>
+              placeholder="Host"
+              placeholderTextColor="rgb(204,204,204)"
+              {...iosProps}></Dialog.Input>
             <Dialog.Input
               onChangeText={this.onChangeUsername}
-              placeholder="Username"></Dialog.Input>
+              placeholder="Username"
+              placeholderTextColor="rgb(204,204,204)"
+              {...iosProps}></Dialog.Input>
             <Dialog.Input
               onChangeText={this.onChangePassword}
               placeholder="Password"
-              secureTextEntry={true}></Dialog.Input>
+              placeholderTextColor="rgb(204,204,204)"
+              secureTextEntry={true}
+              {...iosProps}></Dialog.Input>
             <Dialog.Button label="Cancel" onPress={this.handleCancel} />
             <Dialog.Button label="Add" onPress={this.handleAdd} />
           </Dialog.Container>
           <ConnectionList
             cameras={this.state.cameras}
             handleRemove={this.handleRemove}
+            handleAdd={this.handleAddSpecific}
           />
         </SafeAreaView>
       </>
